@@ -12,7 +12,8 @@ services:
     environment:
       - POSTGRES_DB=typebot
       - POSTGRES_PASSWORD=typebot
-
+    ports:
+      - '5434:5432'
   typebot-builder:
     image: baptistearno/typebot-builder:latest
     restart: always
