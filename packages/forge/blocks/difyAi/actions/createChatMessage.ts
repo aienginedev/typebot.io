@@ -1,5 +1,5 @@
 import { createAction, option } from '@typebot.io/forge'
-import { isDefined, isEmpty } from '@typebot.io/lib'
+import { isDefined, isEmpty, isNotEmpty } from '@typebot.io/lib'
 import { HTTPError, got } from 'got'
 import { auth } from '../auth'
 import { defaultBaseUrl } from '../constants'
@@ -120,9 +120,10 @@ export const createChatMessage = createAction({
           if (!mapping.variableId) return
 
           const item = mapping.item ?? 'Answer'
-          if (item === 'Answer') variables.set(mapping.variableId, answer)
+          if (item === 'Answer')
+            variables.set(mapping.variableId, convertNonMarkdownLinks(answer))
 
-          if (item === 'Conversation ID')
+          if (item === 'Conversation ID' && isNotEmpty(conversationId))
             variables.set(mapping.variableId, conversationId)
 
           if (item === 'Total Tokens')
@@ -140,3 +141,8 @@ export const createChatMessage = createAction({
     },
   },
 })
+
+const convertNonMarkdownLinks = (text: string) => {
+  const nonMarkdownLinks = /(?<![\([])https?:\/\/\S+/g
+  return text.replace(nonMarkdownLinks, (match) => `[${match}](${match})`)
+}
